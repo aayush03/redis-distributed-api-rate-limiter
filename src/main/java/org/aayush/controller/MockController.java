@@ -17,8 +17,8 @@ public class MockController {
     @Autowired
     private MockService mockService;
 
-    @RequestMapping(value = "/distributed-lock/{transactionId}", method = RequestMethod.GET)
-    private String getLock(@PathVariable String transactionId) {
-        return mockService.getMockValue(transactionId);
+    @RequestMapping(value = "/rate-limiter/{key}", method = RequestMethod.GET)
+    private String getLock(@PathVariable String key) {
+        return mockService.getMockValue(key);
     }
 }

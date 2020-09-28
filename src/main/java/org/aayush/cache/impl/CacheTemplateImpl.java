@@ -21,92 +21,14 @@ import java.util.concurrent.TimeUnit;
 @Service("cacheTemplate")
 public class CacheTemplateImpl implements CacheTemplate {
 
-    private final String PREFIX = ":";
     @Autowired
     @Qualifier("redisTemplate")
     private RedisTemplate redisTemplate;
     @Autowired
     @Qualifier("longStringHashRedisTemplate")
     private RedisTemplate longStringHashRedisTemplate;
+
     private Logger logger = LoggerFactory.getLogger(CacheTemplateImpl.class);
-
-
-    public void putValue(final String key, final Object value, final String cacheName) {
-        putValue(concatenateCacheNameWithKey(key, cacheName), value);
-    }
-
-    public void putValues(final String key, final List<Object> value, final String cacheName) {
-        putValue(key, value, cacheName);
-    }
-
-    public void putValue(final String key, final Object value, final String cacheName, long time, final TimeUnit unit) {
-        putValue(concatenateCacheNameWithKey(key, cacheName), value, time, unit);
-    }
-
-    public void putValue(final String key, final Object value) {
-        try {
-            redisTemplate.opsForValue().set(key, value);
-        } catch (Exception ex) {
-            logger.error("Exception::", ex);
-        }
-    }
-
-    public void putValue(final String key, final Object value, long time, final TimeUnit unit) {
-        try {
-            redisTemplate.opsForValue().set(key, value, time, unit);
-        } catch (Exception ex) {
-            logger.error("Exception::", ex);
-        }
-    }
-
-    @Override
-    public Object getValue(final String key, final String cacheName) {
-        return getValue(concatenateCacheNameWithKey(key, cacheName));
-    }
-
-    public Object getValue(final String key) {
-        try {
-            return redisTemplate.opsForValue().get(key);
-        } catch (Exception ex) {
-            logger.error("Exception::", ex);
-        }
-        return null;
-    }
-
-    public void deleteKeys(List<String> keys, String cacheName) {
-        logger.info("bulk deletion of redis keys : {}", keys);
-        keys.stream().forEach(k -> deleteValue(k, cacheName));
-    }
-
-    @Override
-    public void deleteValue(final String key, final String cacheName) {
-        deleteValue(concatenateCacheNameWithKey(key, cacheName));
-    }
-
-    public void deleteValue(final String key) {
-        try {
-            redisTemplate.delete(key);
-        } catch (Exception ex) {
-            logger.error("Exception::", ex);
-        }
-    }
-
-    @Override
-    public void clearAllCache(final String cacheName) {
-        try {
-            redisTemplate.keys(getCacheNamePattern(cacheName)).stream().forEach(k -> deleteValue((String) k));
-        } catch (Exception ex) {
-            logger.error("Exception::", ex);
-        }
-    }
-
-    private String concatenateCacheNameWithKey(final String key, final String cacheName) {
-        return cacheName + PREFIX + key;
-    }
-
-    private String getCacheNamePattern(final String cacheName) {
-        return cacheName + PREFIX + "*";
-    }
 
     @Override
     public boolean isRateLimitExhaustedInSlidingWindow(String rateLimitingKey, long allowedRequests, long slidingWindowTimeout, TimeUnit unit) {
